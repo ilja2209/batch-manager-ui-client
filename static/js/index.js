@@ -124,5 +124,6 @@ function formatStr(str) {
         .replaceAll('\\n\\t', '')
         .replaceAll('\\n', '')
         .replaceAll("'", "")
+        .replaceAll('\\"', "")
         .replaceAll('"', '\\\"');
 }
