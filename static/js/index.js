@@ -40,10 +40,11 @@ function updateTable(rows) {
     h = ""
     rows.forEach(r => {
         td = "<th scope=\"row\"><a href=\"javascript:showProcessDetails(" + r.id + ");\">" + r.id + "</th>"
-        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + r.data.replaceAll('"', '\\\"') + "\");'>Request json</th>"
+        td += "<td><a href='javascript:showJsonTextArea(\"" + formatStr(r.data) + "\");'/>Request json</td>"
         td += "<td>" + r.started + "</td>"
         td += "<td>" + r.finished + "</td>"
         td += "<td>" + getBage(r.state) + "</td>"
+        td += "<td><a href='javascript:showJsonTextArea(\"" + formatStr(r.context) + "\");'/>Data</td>"
 
         if (!isTerminatedState(r.state)) {
             td += "<td><button type=\"button\" class=\"btn btn-danger\">KILL</button></td>"
@@ -61,25 +62,26 @@ function showProcessDetails(process_id) {
     $.ajax({
         url: "/api/v1/processes/" + process_id,
         success: function (result) {
-            updateTaskTable(result);
+            tasks = result.tasks == null ? [] : result.tasks;
+            updateTaskTable(tasks);
             $('#processDetails').modal('show');
         }
     });
 }
 
-function updateTaskTable(processDetails) {
+function updateTaskTable(tasks) {
     h = ""
-    processDetails.tasks.forEach(task => {
+    tasks.forEach(task => {
         td = "<td>" + task.id + "</td>"
         td += "<th scope=\"row\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://prod-master003.offline-analytics.sel-vpc.onefactor.com:8088/proxy/" + task.application_id + "\">" + task.application_id + "</th>"
-        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + task.data.replaceAll('"', '\\\"') + "\");'>Data</th>"
+        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + formatStr(task.data) + "\");'>Data</th>"
         td += "<td>" + task.attempt + "</td>"
         td += "<td>" + task.stage_num + "</td>"
         td += "<td>" + task.started + "</td>"
         td += "<td>" + task.finished + "</td>"
         td += "<td>" + getBage(task.state) + "</td>"
-        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + task.result.replaceAll('"', '\\\"') + "\");'>Data</th>"
-        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + task.context.replaceAll('"', '\\\"') + "\");'>Data</th>"
+        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + formatStr(task.result) + "\");'>Data</th>"
+        td += "<th scope=\"row\"><a href='javascript:showJsonTextArea(\"" + formatStr(task.context) + "\");'>Data</th>"
         h += "<tr>" + td + "</th></tr>"
     })
     $("#tasks-table-body").html(h);
@@ -112,4 +114,15 @@ function showJsonTextArea(jsonText) {
         $('#jsonTextArea').html(jsonText);
     }
     $('#jsonDetailsModal').modal('show');
+}
+
+function formatStr(str) {
+    if (str == null) {
+        return "";
+    }
+    return str
+        .replaceAll('\\n\\t', '')
+        .replaceAll('\\n', '')
+        .replaceAll("'", "")
+        .replaceAll('"', '\\\"');
 }
