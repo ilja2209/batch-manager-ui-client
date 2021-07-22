@@ -17,6 +17,7 @@ function getAllProcesses() {
         url: "/api/v1/processes",
         success: function (result) {
             updateTable(result)
+            //setTimeout(getAllProcesses, 7000);
         },
         error: function (data) {
             alert(data.responseText);
@@ -88,7 +89,7 @@ function updateTaskTable(tasks) {
 }
 
 function getBage(state) {
-    if (state === "SUCCEEDED") {
+    if (state === "SUCCEEDED" || state === "SPLIT_FINISHED") {
         return "<span class=\"badge bg-success\">" + state + "</span>";
     } else if (state === "FAILED") {
         return "<span class=\"badge bg-danger\">" + state + "</span>";
@@ -100,7 +101,7 @@ function getBage(state) {
 }
 
 function isTerminatedState(state) {
-    return state === "SUCCEEDED" || state === "KILLED" || state === "FAILED";
+    return state === "SUCCEEDED" || state === "KILLED" || state === "FAILED" || state === "SPLIT_FINISHED";
 }
 
 function showJsonTextArea(jsonText) {
