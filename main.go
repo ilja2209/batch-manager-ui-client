@@ -39,7 +39,8 @@ func main() {
 	router.HandleFunc("/api/v1/processes", procService.GetProcessesHandler).Methods("GET")
 	router.HandleFunc("/api/v1/processes/{id}", procService.GetProcessesByIdHandler).Methods("GET")
 
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
+	staticFilesPath := utils.GetEnv("STATIC_PATH", "./static/")
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(staticFilesPath)))
 
 	srv := &http.Server{
 		Handler:      router,
