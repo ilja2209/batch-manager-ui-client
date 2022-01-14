@@ -18,7 +18,7 @@ func main() {
 		utils.GetEnvOrPanic("DB_HOST"), //format: <host>:<port>
 		utils.GetEnvOrPanic("DB_USER"),
 		utils.GetEnvOrPanic("DB_PASSWORD"),
-		utils.GetEnvOrPanic("DB_USERNAME"),
+		utils.GetEnvOrPanic("DB_NAME"),
 	)
 
 	if err != nil {
