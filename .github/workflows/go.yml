@@ -19,5 +19,9 @@ jobs:
     - name: Build
       run: go build
 
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ghcr.io/ilja2209/batch-manager-ui:$(date +%s)
+    - name: Build the Docker image and push it
+      run: |
+       export CURR_DATE=$(date +%s)
+       echo $CURR_DATE
+       docker build . --file Dockerfile --tag ghcr.io/ilja2209/batch-manager-ui:$CURR_DATE
+       docker push ghcr.io/ilja2209/batch-manager-ui:$CURR_DATE
