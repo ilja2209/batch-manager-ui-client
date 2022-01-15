@@ -15,14 +15,18 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.17
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build
       run: go build
-
-    - name: Build the Docker image and push it
+      
+    - name: Build the Docker image
       run: |
-       export CURR_DATE=$(date +%s)
-       echo $CURR_DATE
-       docker build . --file Dockerfile --tag ghcr.io/ilja2209/batch-manager-ui:$CURR_DATE
-       docker push ghcr.io/ilja2209/batch-manager-ui:$CURR_DATE
+       export VERSION=$(cat version.txt)
+       echo $VERSION
+       docker build . --file Dockerfile --tag ghcr.io/${{ github.repository_owner }}/batch-manager-ui:$VERSION
+
+    - name: Log in to registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push image
+      run: docker push ghcr.io/${{ github.repository_owner }}/batch-manager-ui:$VERSION
