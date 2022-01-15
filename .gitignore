@@ -1,4 +1,5 @@
 batch-manager-ui-client
 .vscode/launch.json
 run_local.sh
+.DS_Store
 
