@@ -6,4 +6,5 @@ RUN chmod 777 /service/batch-manager-ui-client
 ENV SERVICE_PORT=8080
 ENV STATIC_PATH=/service/static/
 EXPOSE 8080/tcp
-ENTRYPOINT [ "./service/batch-manager-ui-client" ]
+WORKDIR /service
+ENTRYPOINT [ "./batch-manager-ui-client" ]
