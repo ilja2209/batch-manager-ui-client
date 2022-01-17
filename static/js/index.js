@@ -48,7 +48,7 @@ function updateTable(rows) {
         td += "<td><a href='javascript:showJsonTextArea(\"" + formatStr(r.context) + "\");'/>Data</td>"
 
         if (!isTerminatedState(r.state)) {
-            td += "<td><button type=\"button\" class=\"btn btn-danger\">KILL</button></td>"
+            td += "<td><button type=\"button\" class=\"btn btn-danger\" disabled>KILL</button></td>"
         } else {
             td += "<td></td>"
         }
