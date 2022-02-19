@@ -1,22 +1,29 @@
+currentFindRequest = "";
+
 $(document).ready(function () {
     getAllProcesses();
 
     $('#searchButton').on('click', function (event) {
         id = $('#processIdText').val().trim()
-        if (id === "") {
-            getAllProcesses();
-        } else {
-            getProcessById(id);
-        }
+        updateSearchResult(id);
     });
 
 });
+
+function updateSearchResult(id) {
+    if (id === "") {
+        getAllProcesses();
+    } else {
+        getProcessById(id);
+    }
+}
 
 function getAllProcesses() {
     $.ajax({
         url: "/api/v1/processes",
         success: function (result) {
             updateTable(result)
+            currentFindRequest = "";
             //setTimeout(getAllProcesses, 7000);
         },
         error: function (data) {
@@ -29,10 +36,26 @@ function getProcessById(id) {
     $.ajax({
         url: "/api/v1/processes/" + id,
         success: function (result) {
+            currentFindRequest = id;
             updateTable([result])
         },
         error: function (data) {
             alert(data.responseText);
+        }
+    });
+}
+
+function stopProcess(id) {
+    $.ajax({
+        type: "DELETE",
+        url: "/api/v1/processes/" + id,
+        success: function (result) {
+            //updateTable([result])
+            updateSearchResult(currentFindRequest);
+        },
+        error: function (data) {
+            alert(data.responseText);
+            updateSearchResult(currentFindRequest);
         }
     });
 }
@@ -48,7 +71,7 @@ function updateTable(rows) {
         td += "<td><a href='javascript:showJsonTextArea(\"" + formatStr(r.context) + "\");'/>Data</td>"
 
         if (!isTerminatedState(r.state)) {
-            td += "<td><button type=\"button\" class=\"btn btn-danger\" disabled>KILL</button></td>"
+            td += "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"stopProcess(" + r.id + ")\"" + ">KILL</button></td>"
         } else {
             td += "<td></td>"
         }

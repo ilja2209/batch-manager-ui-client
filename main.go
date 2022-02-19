@@ -28,7 +28,7 @@ func main() {
 	defer dbCon.Close()
 
 	procRepository := db.NewProcessRepository(dbCon)
-	procService := service.NewService(procRepository)
+	procService := service.NewService(procRepository, utils.GetEnvAsBool("STOP_PROCESS_AUTHORIZED", false))
 
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -38,6 +38,7 @@ func main() {
 
 	router.HandleFunc("/api/v1/processes", procService.GetProcessesHandler).Methods("GET")
 	router.HandleFunc("/api/v1/processes/{id}", procService.GetProcessesByIdHandler).Methods("GET")
+	router.HandleFunc("/api/v1/processes/{id}", procService.StopProcessHandler).Methods("DELETE")
 
 	staticFilesPath := utils.GetEnv("STATIC_PATH", "./static/")
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(staticFilesPath)))
