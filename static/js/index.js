@@ -50,7 +50,6 @@ function stopProcess(id) {
         type: "DELETE",
         url: "/api/v1/processes/" + id,
         success: function (result) {
-            //updateTable([result])
             updateSearchResult(currentFindRequest);
         },
         error: function (data) {

@@ -71,7 +71,6 @@ func (service *Service) GetProcessesByIdHandler(writer http.ResponseWriter, requ
 	err = json.NewEncoder(writer).Encode(process)
 
 	if err != nil {
-		// todo: log error
 		writer.WriteHeader(http.StatusInternalServerError)
 		_, _ = writer.Write([]byte(err.Error()))
 		return
@@ -89,8 +88,6 @@ func (service *Service) StopProcessHandler(writer http.ResponseWriter, request *
 		return
 	}
 
-	//call grpc method to kill process
-
 	clientReq := &pb.Get{
 		Id: id,
 	}
@@ -103,5 +100,5 @@ func (service *Service) StopProcessHandler(writer http.ResponseWriter, request *
 	}
 
 	writer.WriteHeader(http.StatusAccepted)
-	_, _ = writer.Write([]byte(""))
+	//_, _ = writer.Write([]byte(""))
 }
