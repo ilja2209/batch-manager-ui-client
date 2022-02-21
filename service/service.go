@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -8,17 +9,24 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/ilja2209/batch-manager-ui-client/db"
+	pb "github.com/ilja2209/batch-manager-ui-client/go-grpc/proto"
 )
 
 type Service struct {
 	processRepository     *db.ProcessRepository
 	stopProcessAuthorized bool
+	batchManager          pb.BatchManagerServiceClient
 }
 
-func NewService(processRepository *db.ProcessRepository, stopProcessAuthorized bool) *Service {
+func NewService(
+	processRepository *db.ProcessRepository,
+	stopProcessAuthorized bool,
+	batchManager pb.BatchManagerServiceClient,
+) *Service {
 	return &Service{
 		processRepository:     processRepository,
 		stopProcessAuthorized: stopProcessAuthorized,
+		batchManager:          batchManager,
 	}
 }
 
@@ -72,13 +80,28 @@ func (service *Service) GetProcessesByIdHandler(writer http.ResponseWriter, requ
 
 func (service *Service) StopProcessHandler(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
-	idStr := vars["id"]
-	fmt.Println(idStr)
+	id := vars["id"]
+	fmt.Println(id)
 
 	if !service.stopProcessAuthorized {
 		writer.WriteHeader(http.StatusUnauthorized)
-		_, _ = writer.Write([]byte("Unauthorized to stop process " + idStr))
+		_, _ = writer.Write([]byte("Unauthorized to stop process " + id))
 		return
 	}
+
 	//call grpc method to kill process
+
+	clientReq := &pb.Get{
+		Id: id,
+	}
+
+	_, err := service.batchManager.StopProcess(context.Background(), clientReq)
+	if err != nil {
+		writer.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = writer.Write([]byte(fmt.Sprintf("Failed to call stopProcess: %v", err)))
+		return
+	}
+
+	writer.WriteHeader(http.StatusAccepted)
+	_, _ = writer.Write([]byte(""))
 }

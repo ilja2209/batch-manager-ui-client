@@ -71,7 +71,11 @@ function updateTable(rows) {
         td += "<td><a href='javascript:showJsonTextArea(\"" + formatStr(r.context) + "\");'/>Data</td>"
 
         if (!isTerminatedState(r.state)) {
-            td += "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"stopProcess(" + r.id + ")\"" + ">KILL</button></td>"
+            if (r.state === "KILLING") {
+                td += "<td><button type=\"button\" class=\"btn btn-danger\" disabled onclick=\"stopProcess(" + r.id + ")\"" + ">KILL</button></td>"
+            } else {
+                td += "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"stopProcess(" + r.id + ")\"" + ">KILL</button></td>"
+            }
         } else {
             td += "<td></td>"
         }

@@ -8,8 +8,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/ilja2209/batch-manager-ui-client/db"
+	pb "github.com/ilja2209/batch-manager-ui-client/go-grpc/proto"
 	"github.com/ilja2209/batch-manager-ui-client/service"
 	"github.com/ilja2209/batch-manager-ui-client/utils"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -24,11 +26,24 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	defer dbCon.Close()
 
 	procRepository := db.NewProcessRepository(dbCon)
-	procService := service.NewService(procRepository, utils.GetEnvAsBool("STOP_PROCESS_AUTHORIZED", false))
+
+	opts := []grpc.DialOption{
+		grpc.WithInsecure(),
+	}
+
+	bmConn, err := grpc.Dial(utils.GetEnvOrPanic("BATCH_MANAGER_URL"), opts...)
+
+	if err != nil {
+		log.Fatalf("Fail to dial batch-manager-service: %v", err)
+		return
+	}
+	defer bmConn.Close()
+	batchManagerClient := pb.NewBatchManagerServiceClient(bmConn)
+
+	procService := service.NewService(procRepository, utils.GetEnvAsBool("STOP_PROCESS_AUTHORIZED", false), batchManagerClient)
 
 	router := mux.NewRouter().StrictSlash(true)
 
