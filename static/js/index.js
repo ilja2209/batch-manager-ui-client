@@ -1,11 +1,22 @@
 currentFindRequest = "";
 
 $(document).ready(function () {
-    getAllProcesses();
+    var url = new URL(window.location.href);
+    var id = url.searchParams.get("id");
+
+    if (id == null) {
+        getAllProcesses();
+    } else {
+        updateSearchResult(id);
+    }
 
     $('#searchButton').on('click', function (event) {
         id = $('#processIdText').val().trim()
-        updateSearchResult(id);
+        if (id === '' || id == null) {
+            window.location.href = '/';
+        } else {
+            window.location.href = '?id=' + id;
+        }
     });
 
 });
