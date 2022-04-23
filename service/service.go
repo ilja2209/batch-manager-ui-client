@@ -55,7 +55,13 @@ func (service *Service) GetProcessesByIdHandler(writer http.ResponseWriter, requ
 	vars := mux.Vars(request)
 	idStr := vars["id"]
 
-	id, _ := strconv.ParseInt(idStr, 10, 64)
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		fmt.Printf("%q Wrong parameter. It must be number.\n", idStr)
+		writer.WriteHeader(http.StatusInternalServerError)
+		_, _ = writer.Write([]byte(fmt.Sprintf("Parameter %s is wrong. It must be a number", idStr)))
+		return
+	}
 
 	process, err := service.processRepository.GetProcessById(id)
 
@@ -82,6 +88,14 @@ func (service *Service) StopProcessHandler(writer http.ResponseWriter, request *
 	id := vars["id"]
 	fmt.Println(id)
 
+	_, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		fmt.Printf("%q Wrong parameter. It must be number.\n", id)
+		writer.WriteHeader(http.StatusInternalServerError)
+		_, _ = writer.Write([]byte(fmt.Sprintf("Parameter %s is wrong. It must be a number", id)))
+		return
+	}
+
 	if !service.stopProcessAuthorized {
 		writer.WriteHeader(http.StatusUnauthorized)
 		_, _ = writer.Write([]byte("Unauthorized to stop process " + id))
@@ -92,7 +106,7 @@ func (service *Service) StopProcessHandler(writer http.ResponseWriter, request *
 		Id: id,
 	}
 
-	_, err := service.batchManager.StopProcess(context.Background(), clientReq)
+	_, err = service.batchManager.StopProcess(context.Background(), clientReq)
 	if err != nil {
 		writer.WriteHeader(http.StatusServiceUnavailable)
 		_, _ = writer.Write([]byte(fmt.Sprintf("Failed to call stopProcess: %v", err)))
@@ -100,5 +114,4 @@ func (service *Service) StopProcessHandler(writer http.ResponseWriter, request *
 	}
 
 	writer.WriteHeader(http.StatusAccepted)
-	//_, _ = writer.Write([]byte(""))
 }
